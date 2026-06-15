@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package student;
+
+// =============================
+// Student Service
+// =============================
+service StudentService {
+
+  // Create
+  rpc AddStudent(AddStudentRequest)
+      returns (OperationStatus);
+
+  // Read (Single)
+  rpc GetStudent(GetStudentRequest)
+      returns (Student);
+
+  // Read (All)
+  rpc ListStudents(Empty)
+      returns (StudentList);
+
+  // Update
+  rpc UpdateStudent(UpdateStudentRequest)
+      returns (OperationStatus);
+
+  // Delete
+  rpc DeleteStudent(DeleteStudentRequest)
+      returns (OperationStatus);
+}
+
+// =============================
+// Common Messages
+// =============================
+
+message Empty {}
+
+// Represents a student in the system
+message Student {
+  int32 id = 1;
+  string name = 2;
+  int32 age = 3;
+  string department = 4;
+}
+
+// =============================
+// Create
+// =============================
+
+message AddStudentRequest {
+  int32 id = 1;
+  string name = 2;
+  int32 age = 3;
+  string department = 4;
+}
+
+// =============================
+// Read
+// =============================
+
+message GetStudentRequest {
+  int32 id = 1;
+}
+
+message StudentList {
+  repeated Student students = 1;
+}
+
+// =============================
+// Update
+// =============================
+
+message UpdateStudentRequest {
+  int32 id = 1;
+  string name = 2;
+  int32 age = 3;
+  string department = 4;
+}
+
+// =============================
+// Delete
+// =============================
+
+message DeleteStudentRequest {
+  int32 id = 1;
+}
+
+// =============================
+// Generic Response
+// =============================
+
+message OperationStatus {
+  bool success = 1;
+  string message = 2;
+}
