@@ -120,6 +120,7 @@ public:
         return Status::OK;
     }
 
+    // update student data
     Status UpdateStudent(
         ServerContext* context,
         const UpdateStudentRequest* request,
