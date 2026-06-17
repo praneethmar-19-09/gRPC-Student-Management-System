@@ -95,6 +95,7 @@ public:
         return Status::OK;
     }
 
+    // Implementation of ListStudents RPC
     Status ListStudents(
         ServerContext* context,
         const Empty* request,
