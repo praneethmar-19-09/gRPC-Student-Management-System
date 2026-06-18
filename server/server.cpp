@@ -5,8 +5,8 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include "student.pb.h"
-#include "student.grpc.pb.h"
+#include "../generated/student.pb.h"
+#include "../generated/student.grpc.pb.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
