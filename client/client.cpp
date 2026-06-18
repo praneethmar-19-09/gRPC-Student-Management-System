@@ -4,8 +4,8 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include "student.grpc.pb.h"
-#include "student.pb.h"
+#include "../generated/student.grpc.pb.h"
+#include "../generated/student.pb.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
