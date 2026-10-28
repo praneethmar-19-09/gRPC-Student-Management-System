@@ -1,4 +1,149 @@
+# gRPC Student Management System
 
+A C++ gRPC service for adding, retrieving, listing, updating, and deleting students.
+The server listens on port `50051`. The client and server communicate using the
+service and message definitions in [`../proto/student.proto`](../proto/student.proto).
 
-How to run this Student management system
+## Requirements
 
+On Ubuntu or Debian, install the compiler and gRPC/protobuf development packages:
+
+```bash
+sudo apt update
+sudo apt install build-essential libgrpc++-dev libprotobuf-dev
+```
+
+Generated protobuf/gRPC source files are already included in `generated/`, so
+you do not need `protoc` to build this project.
+
+## Build
+
+From the project root:
+
+```bash
+cd /home.local/kwaf/Learning/gRPC-student-management-system
+
+g++ -std=c++17 server/server.cpp generated/student.pb.cc generated/student.grpc.pb.cc \
+  -o student_server -lgrpc++ -lprotobuf
+
+g++ -std=c++17 client/client.cpp generated/student.pb.cc generated/student.grpc.pb.cc \
+  -o student_client -lgrpc++ -lprotobuf
+```
+
+This creates `student_server` and `student_client` in the project root.
+
+## Run the server and command-line client
+
+1. In terminal 1, start the server:
+
+   ```bash
+   cd /home.local/kwaf/Learning/gRPC-student-management-system
+   ./student_server
+   ```
+
+   Wait for:
+
+   ```text
+   Student gRPC Server listening on 0.0.0.0:50051
+   ```
+
+2. Keep the server running. In terminal 2, start the client:
+
+   ```bash
+   cd /home.local/kwaf/Learning/gRPC-student-management-system
+   ./student_client
+   ```
+
+3. Use the menu. For example, enter `1` to add a student, then provide values
+   when prompted:
+
+   ```text
+   Choice: 1
+   ID: 1
+   Name: praneeth
+   Age: 3
+   Department: CSE
+   ```
+
+   The client should print `Student added successfully`. Choose `3` to list
+   students, or `2` and enter `1` to retrieve this student. Choose `6` to exit
+   the client. Stop the server with `Ctrl+C`.
+
+   The command-line client reads names and departments as single words.
+
+## Send requests with a gRPC API client
+
+You can also invoke the service from Postman or another gRPC client. Start
+`student_server` first and leave it running.
+
+1. Create a gRPC request and set the server address to:
+
+   ```text
+   localhost:50051
+   ```
+
+2. Load the service definition from `proto/student.proto`. In Postman, use
+   **Import a .proto file** and select that file. The project uses plaintext
+   gRPC; do not enable TLS for this local server.
+
+3. Select service `StudentService` and method `AddStudent`.
+
+4. In the message editor, enter this JSON request:
+
+   ```json
+   {
+     "id": 1,
+     "name": "praneeth",
+     "age": 3,
+     "department": "CSE"
+   }
+   ```
+
+   This is the JSON representation of `AddStudentRequest`. Use JSON syntax:
+   quote field names, separate fields with commas, and do not add semicolons.
+   Do not use protobuf text format such as `id: 1;`.
+
+5. Click **Invoke**. A successful RPC returns an `OperationStatus` similar to:
+
+   ```json
+   {
+     "success": true,
+     "message": "Student added successfully"
+   }
+   ```
+
+   Sending the same ID again returns `success: false` with
+   `Student already exists`.
+
+### Other RPC methods
+
+Select the method in the gRPC client and send a message matching its request:
+
+| Method | Request message | Example JSON |
+| --- | --- | --- |
+| `GetStudent` | `GetStudentRequest` | `{"id": 1}` |
+| `ListStudents` | `Empty` | `{}` |
+| `UpdateStudent` | `UpdateStudentRequest` | `{"id": 1, "name": "praneeth", "age": 4, "department": "CSE"}` |
+| `DeleteStudent` | `DeleteStudentRequest` | `{"id": 1}` |
+
+`GetStudent` returns the student fields. `ListStudents` returns a `students`
+array. Update and delete return `OperationStatus`; check its `success` and
+`message` fields. `GetStudent` for an unknown ID returns gRPC status
+`NOT_FOUND`. Update or delete for an unknown ID returns `success: false`.
+
+## Troubleshooting
+
+- **Could not invoke method / errors in composed message:** Check that the body
+  is valid JSON. Use quoted keys and commas, not semicolons.
+- **Connection refused or unavailable:** Confirm `student_server` is running
+  and the client is connecting to `localhost:50051`.
+- **Address already in use:** Another process is using port `50051`; stop that
+  process or change the port consistently in both `server/server.cpp` and
+  `client/client.cpp`.
+
+## Data lifetime
+
+Students are held in memory by the server. They are lost when the server stops
+or restarts. This implementation uses insecure (plaintext) gRPC credentials
+and is intended for local learning/testing, not exposure to an untrusted
+network.
